@@ -116,6 +116,24 @@ class _TodosScreenState extends State<TodosScreen> {
                       child: FutureBuilder(
                         future: loadTodosFuture,
                         builder: (context, builder) {
+                          if (builder.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (builder.hasError) {
+                            return const Center(child: Text('An error occurred'));
+                          }
+                          if (todoDatabase.todos.isEmpty) {
+                            return Center(
+                              child: Text(
+                                'No todos yet',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            );
+                          }
                           return ListView.builder(
                             itemCount: todoDatabase.todos.length,
                             itemBuilder: (context, index) {

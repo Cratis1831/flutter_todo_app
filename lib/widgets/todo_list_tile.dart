@@ -45,6 +45,7 @@ class TodoListTile extends StatelessWidget {
           ),
         ),
         child: ListTile(
+          enableFeedback: true,
           title: Text(
             todo.title,
             style: TextStyle(
