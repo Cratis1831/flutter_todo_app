@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 
-class TodosScreen extends StatelessWidget {
+class TodosScreen extends StatefulWidget {
   const TodosScreen({super.key});
 
   @override
+  State<TodosScreen> createState() => _TodosScreenState();
+}
+
+class _TodosScreenState extends State<TodosScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add your onPressed logic here
+        },
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
         title: const Text('Todos'),
       ),

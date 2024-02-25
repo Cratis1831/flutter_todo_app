@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/pages/todos_screen.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'database/todo_database.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await TodoDatase.init();
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TodoDatase(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
