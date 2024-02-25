@@ -15,14 +15,13 @@ class TodosScreen extends StatefulWidget {
 class _TodosScreenState extends State<TodosScreen> {
   TextEditingController titleController = TextEditingController();
   TextEditingController contentController = TextEditingController();
-  late Future<void> loadCompletedTodosFuture;
-  late Future<void> loadIncompletedTodosFuture;
+  late Future<void> loadTodosFuture;
+  bool showCompleted = false;
 
   @override
   void initState() {
     super.initState();
-    loadCompletedTodosFuture = Provider.of<TodoDatabase>(context, listen: false).loadCompletedTodos();
-    loadIncompletedTodosFuture = Provider.of<TodoDatabase>(context, listen: false).loadIncompletedTodos();
+    loadTodosFuture = Provider.of<TodoDatabase>(context, listen: false).loadTodos();
   }
 
   @override
@@ -38,22 +37,23 @@ class _TodosScreenState extends State<TodosScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text('New Todo'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Title',
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: const InputDecoration(hintText: 'Title', border: OutlineInputBorder()),
+                  controller: titleController,
                 ),
-                controller: titleController,
-              ),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Content',
+                const SizedBox(height: 8),
+                TextField(
+                  decoration: const InputDecoration(hintText: 'Content', border: OutlineInputBorder()),
+                  controller: contentController,
+                  maxLines: 6,
                 ),
-                controller: contentController,
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -63,18 +63,16 @@ class _TodosScreenState extends State<TodosScreen> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: titleController.text.isEmpty || contentController.text.isEmpty
-                  ? null
-                  : () async {
-                      Navigator.of(context).pop();
-                      Todo newTodo = Todo(
-                        title: titleController.text,
-                        content: contentController.text,
-                      );
-                      await context.read<TodoDatabase>().createNewTodo(newTodo);
-                      titleController.clear();
-                      contentController.clear();
-                    },
+              onPressed: () async {
+                Navigator.of(context).pop();
+                Todo newTodo = Todo(
+                  title: titleController.text,
+                  content: contentController.text,
+                );
+                await context.read<TodoDatabase>().createNewTodo(newTodo);
+                titleController.clear();
+                contentController.clear();
+              },
               child: const Text('Add'),
             ),
           ],
@@ -94,61 +92,52 @@ class _TodosScreenState extends State<TodosScreen> {
           ),
           appBar: AppBar(
             title: const Text('Todos'),
-          ),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Flexible(
-                child: SizedBox(
-                  height: 300,
-                  child: FutureBuilder(
-                    future: loadIncompletedTodosFuture,
-                    builder: (context, builder) {
-                      return ListView.builder(
-                        itemCount: todoDatabase.incompletedTodos.length,
-                        itemBuilder: (context, index) {
-                          Todo todo = todoDatabase.incompletedTodos[index];
-                          return TodoListTile(
-                            todo: todo,
-                            onChanged: (isCompleted) {
-                              todoDatabase.updateTodo(
-                                todo.id,
-                                todo.copyWith(isCompleted: isCompleted),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: 300,
-                  child: FutureBuilder(
-                    future: loadCompletedTodosFuture,
-                    builder: (context, builder) {
-                      return ListView.builder(
-                        itemCount: todoDatabase.completedTodos.length,
-                        itemBuilder: (context, index) {
-                          Todo todo = todoDatabase.completedTodos[index];
-                          return TodoListTile(
-                            todo: todo,
-                            onChanged: (isCompleted) {
-                              todoDatabase.updateTodo(
-                                todo.id,
-                                todo.copyWith(isCompleted: isCompleted),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  setState(() {
+                    showCompleted = !showCompleted;
+                  });
+                  await todoDatabase.loadTodos(filterCompleted: showCompleted);
+                },
+                icon: const Icon(Icons.done_all),
               ),
             ],
+          ),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 300,
+                      child: FutureBuilder(
+                        future: loadTodosFuture,
+                        builder: (context, builder) {
+                          return ListView.builder(
+                            itemCount: todoDatabase.todos.length,
+                            itemBuilder: (context, index) {
+                              Todo todo = todoDatabase.todos[index];
+                              return TodoListTile(
+                                todo: todo,
+                                onChanged: (isCompleted) {
+                                  todoDatabase.updateTodo(
+                                    todo.id,
+                                    todo.copyWith(isCompleted: isCompleted),
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       },
