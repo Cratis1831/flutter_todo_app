@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 class TodoDatase extends ChangeNotifier {
   static late Isar isar;
-  List<Todo> _todos = [];
+  final List<Todo> _todos = [];
 
   static Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
