@@ -7,10 +7,10 @@ import 'database/todo_database.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await TodoDatase.init();
+  await TodoDatabase.init();
   runApp(
     ChangeNotifierProvider(
-      create: (context) => TodoDatase(),
+      create: (context) => TodoDatabase(),
       child: const MyApp(),
     ),
   );
