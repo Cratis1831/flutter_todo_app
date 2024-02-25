@@ -30,7 +30,7 @@ class TodoDatabase extends ChangeNotifier {
     await loadTodos();
   }
 
-  Future<void> loadTodos({bool filterCompleted = true}) async {
+  Future<void> loadTodos({bool filterCompleted = false}) async {
     List<Todo> fetchedTodos;
 
     if (filterCompleted) {

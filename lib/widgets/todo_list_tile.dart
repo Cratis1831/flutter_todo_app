@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/database/todo_database.dart';
 import 'package:flutter_todo_app/models/todo.dart';
+import 'package:provider/provider.dart';
 
 class TodoListTile extends StatelessWidget {
   const TodoListTile({
@@ -26,22 +28,39 @@ class TodoListTile extends StatelessWidget {
           ),
         ],
       ),
-      child: ListTile(
-        title: Text(
-          todo.title,
-          style: TextStyle(
-            decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
+      child: Dismissible(
+        onDismissed: (_) {
+          Provider.of<TodoDatabase>(context, listen: false).deleteTodo(todo.id);
+        },
+        key: ValueKey(todo.id),
+        background: Container(
+          color: Colors.red,
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+          child: const Icon(
+            Icons.delete,
+            color: Colors.white,
+            size: 30,
           ),
         ),
-        subtitle: Text(
-          todo.content,
-          style: TextStyle(
-            decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
+        child: ListTile(
+          title: Text(
+            todo.title,
+            style: TextStyle(
+              decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
+            ),
           ),
-        ),
-        trailing: Checkbox(
-          value: todo.isCompleted,
-          onChanged: onChanged,
+          subtitle: Text(
+            todo.content,
+            style: TextStyle(
+              decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
+            ),
+          ),
+          trailing: Checkbox(
+            value: todo.isCompleted,
+            onChanged: onChanged,
+          ),
         ),
       ),
     );
